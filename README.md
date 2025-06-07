@@ -29,15 +29,9 @@ pip install -r requirements.txt
 ```
 
 #### 3. Ejecución proceso ETL
-- <em>Linux/macOS</em>
 ```bash
-python ./etl/run.py
+python -m etl.run
 ```
-- <em>Windows (PowerShell)</em>
-```bash
-python .\\etl\\run.py
-```
-
 
 <em>Desactivar entorno virtual</em>
 ```bash
