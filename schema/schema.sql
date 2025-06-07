@@ -1,3 +1,13 @@
+DROP TABLE IF EXISTS Dim_Date;
+DROP TABLE IF EXISTS Dim_Customer;
+DROP TABLE IF EXISTS Dim_Account;
+DROP TABLE IF EXISTS Dim_Product;
+DROP TABLE IF EXISTS Bridge_Account_Product;
+DROP TABLE IF EXISTS Dim_Tier;
+DROP TABLE IF EXISTS Dim_Benefit;
+DROP TABLE IF EXISTS Bridge_Customer_Tier_Benefit;
+DROP TABLE IF EXISTS Fact_Transaction;
+
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE Dim_Date(
@@ -62,5 +72,3 @@ CREATE TABLE Fact_Transaction(
     FOREIGN KEY (customer_key) REFERENCES Dim_Customer(customer_key),
     FOREIGN KEY (date_key) REFERENCES Dim_Date(date_key)
 );
-
-PRAGMA foreign_key_check;
