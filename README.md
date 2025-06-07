@@ -8,14 +8,13 @@
 #### 1. (Opcional) Crear y activar entorno virtual
 - <em>Linux/macOS</em>
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 ```
 
-
 - <em>Windows (PowerShell)</em>
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 .venv\Scripts\activate
 ```
 
@@ -29,8 +28,15 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-
-
+#### 3. Ejecución proceso ETL
+- <em>Linux/macOS</em>
+```bash
+python ./etl/run.py
+```
+- <em>Windows (PowerShell)</em>
+```bash
+python .\\etl\\run.py
+```
 
 
 <em>Desactivar entorno virtual</em>
