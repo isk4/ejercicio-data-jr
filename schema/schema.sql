@@ -1,3 +1,4 @@
+-- Limpieza de tablas
 DROP TABLE IF EXISTS Dim_Date;
 DROP TABLE IF EXISTS Dim_Customer;
 DROP TABLE IF EXISTS Dim_Account;
@@ -8,8 +9,10 @@ DROP TABLE IF EXISTS Dim_Benefit;
 DROP TABLE IF EXISTS Bridge_Customer_Tier_Benefit;
 DROP TABLE IF EXISTS Fact_Transaction;
 
+-- Activación de foreign keys
 PRAGMA foreign_keys = ON;
 
+-- Creación de tablas
 CREATE TABLE Dim_Date(
     date_key INTEGER PRIMARY KEY,
     date_year INT,
