@@ -30,7 +30,9 @@ pip install -r requirements.txt
 
 #### 3. Ejecución proceso ETL
 ```bash
-python -m etl.run
+python3 -m etl.run
+# O dependiendo del entorno especifico
+# python -m etl.run
 ```
 
 <em>Desactivar entorno virtual</em>
