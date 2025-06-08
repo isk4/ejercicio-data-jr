@@ -46,8 +46,8 @@ def transform_customers(df_customers):
     df_accounts_per_customer = df_accounts_per_customer.rename(columns={"accounts": "account_id"})
 
     multi_owned_accounts = df_accounts_per_customer["account_id"].duplicated(keep=False)
-    print("\nSe encontraron múltiples propietarios para las mismas cuentas y estas no serán consideradas:\n")
-    print(df_accounts_per_customer[multi_owned_accounts][["name", "username", "account_id", ]].to_string())
+    print("Se encontraron múltiples propietarios para las siguientes cuentas, las que no serán consideradas:\n")
+    print(df_accounts_per_customer[multi_owned_accounts][["name", "username", "account_id", ]].to_markdown(index=False))
     # Eliminación de filas con errores
     df_accounts_per_customer = df_accounts_per_customer[~multi_owned_accounts]
 
@@ -86,7 +86,7 @@ def transform_customers(df_customers):
     df_tiers_per_customer = df_tiers_per_customer.merge(df_benefits, on="benefit_name", how="left")
 
     df_tiers_per_customer = df_tiers_per_customer[["customer_key", "tier_key", "benefit_key"]]
-    return df_customers, df_accounts_per_customer, df_tiers_per_customer
+    return df_customers, df_tiers, df_benefits, df_accounts_per_customer, df_tiers_per_customer
 
 # Transformación dataframe cuentas
 def transform_accounts(df_accounts):
@@ -109,6 +109,7 @@ def transform_accounts(df_accounts):
     # Formateo dataframe para bridge account/product
     df_products_per_account = df_products_per_account.merge(df_products, on="products", how="left")
     df_products_per_account = df_products_per_account[["account_key", "product_key"]]
+    df_products = df_products.rename(columns={"products": "product_name"})
 
     return df_accounts, df_products, df_products_per_account
 
@@ -144,3 +145,16 @@ def transform_transactions(df_transactions, df_accounts, df_accounts_per_custome
 
     df_transactions["transaction_key"] = df_transactions.index + 1
     return df_transactions[["transaction_key", "account_key", "customer_key", "date_key", "transaction_code", "symbol", "amount"]]
+
+def insert_data(table_name, dataframe, cursor, connection):
+    dataframe.to_sql(
+        name=table_name,
+        con=connection,
+        if_exists="append",
+        index=False,       
+        chunksize=1000
+    )
+    cursor.execute(f"SELECT COUNT(*) FROM {table_name};")
+    rows = cursor.fetchone()[0]
+
+    print(f"- Se insertaron {rows} filas en la tabla {table_name}\n")

@@ -9,40 +9,72 @@ from etl.utils import (
     transform_customers,
     transform_accounts,
     transform_transactions,
-    generate_dates
+    generate_dates,
+    insert_data
 )
+print("\n- Inicio script ETL -")
+print("----------------------------------------------------------------------------------------------\n")
 
-# # Apertura de conexión a db
-# conn = sqlite3.connect(BASE_DIR / "dw.db")
-# cursor = conn.cursor()
 
+print("Conectando con la base de datos...")
+print("\n----------------------------------------------------------------------------------------------\n")
+# Apertura de conexión a db
+conn = sqlite3.connect(BASE_DIR / "dw.db")
+cursor = conn.cursor()
+
+
+print("Creando tablas...")
+print("\n----------------------------------------------------------------------------------------------\n")
 # # Implementación schema.sql
-# create_tables(cursor)
+create_tables(cursor)
 
-# Carga de data desde el origen
+# Extracción de data desde el origen
 df_transactions, df_accounts, df_customers = get_dataframes()
 
 # Detección account_id duplicados
 dup_account_ids = df_accounts["account_id"].duplicated(keep=False)
-print("\nSe encontraron ids de cuenta duplicados y estas no serán consideradas:\n")
-print(df_accounts[dup_account_ids].to_string())
+print("Se encontraron ids de cuenta duplicados. Las siguientes cuentas no serán consideradas:\n")
+print(df_accounts[dup_account_ids].to_markdown(index=False))
 # Eliminacion de filas con errores
 df_accounts = df_accounts[~dup_account_ids]
+
+print("\n----------------------------------------------------------------------------------------------\n")
 
 # Generación de fechas
 df_dates = generate_dates()
 
 # Transformación de datos cargados
-df_customers, df_accounts_per_customer, df_tiers_per_customer = transform_customers(df_customers)
-df_accounts, df_products, df_products_per_account             = transform_accounts(df_accounts)
+df_customers, df_tiers, df_benefits, df_accounts_per_customer, df_tiers_per_customer = transform_customers(df_customers)
+df_accounts, df_products, df_products_per_account = transform_accounts(df_accounts)
 df_transactions = transform_transactions(df_transactions, df_accounts, df_accounts_per_customer)
 
-print(df_transactions)
+print("\n----------------------------------------------------------------------------------------------\n")
+
+# Carga de data desde en destino
+print("Iniciando insercion de datos...\n")
+tables = {
+    "Dim_Date": df_dates,
+    "Dim_Customer": df_customers,
+    "Dim_Account": df_accounts,
+    "Dim_Product": df_products,
+    "Bridge_Account_Product": df_products_per_account,
+    "Dim_Tier": df_tiers,
+    "Dim_Benefit": df_benefits,
+    "Bridge_Customer_Tier_Benefit": df_tiers_per_customer,
+    "Fact_Transaction": df_transactions
+}
+
+for table_name, dataframe in tables.items():
+    insert_data(table_name, dataframe, cursor, conn)
+
 # Persistencia de inserts
-# conn.commit()
+conn.commit()
 
 # # Validaciones db y foreign keys
-# validate_db(cursor)
+validate_db(cursor)
 
 # # Cierre de conexión a db
-# conn.close()
+conn.close()
+print("\n----------------------------------------------------------------------------------------------\n")
+print("- Fin script ETL -")
+print("\n----------------------------------------------------------------------------------------------\n")
