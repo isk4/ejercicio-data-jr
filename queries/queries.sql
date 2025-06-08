@@ -72,9 +72,40 @@ LIMIT 1;
 
 -- 7. ¿Cuál es el usuario del cliente cuya cuenta tiene entre 10 y 20 transacciones de tipo “buy”,
     -- y que presenta el promedio de inversión más alto por operación de este tipo?
+WITH between_10_and_20_buys AS (
+    SELECT 
+        Dim_Customer.username,
+        AVG(Fact_Transaction.amount) avg_amount,
+        COUNT(*) AS buy_count
+    FROM Dim_Customer
+    JOIN Fact_Transaction ON Fact_Transaction.customer_key = Dim_Customer.customer_key
+        AND Fact_Transaction.transaction_code = 'buy'
+    GROUP BY Dim_Customer.username || Dim_Customer.customer_name
+) SELECT 
+    sername,
+    avg_amount
+FROM between_10_and_20_buys
+WHERE buy_count >= 10 AND buy_count <= 20
+ORDER BY avg_amount DESC
+LIMIT 1;
+
 -- 8. ¿Cuál es el promedio de transacciones de compra y de venta por acción (campo “symbol”)?
+SELECT
+    symbol,
+    AVG(CASE WHEN transaction_code = 'buy'  THEN CAST(amount AS REAL) END) AS avg_buy,
+    AVG(CASE WHEN transaction_code = 'sell' THEN CAST(amount AS REAL) END) AS avg_sell
+FROM Fact_Transaction
+GROUP BY symbol
+ORDER BY symbol
+LIMIT 10;
 
 -- 9. ¿Cuáles son los diferentes beneficios que tienen los clientes del tier “Gold”?
+SELECT DISTINCT
+    Dim_Benefit.benefit_name
+FROM Dim_Tier
+JOIN Bridge_Customer_Tier_Benefit ON Bridge_Customer_Tier_Benefit.tier_key = Dim_Tier.tier_key
+JOIN Dim_Benefit ON Dim_Benefit.benefit_key = Bridge_Customer_Tier_Benefit.benefit_key
+WHERE Dim_Tier.tier_name = 'Gold';
 
 -- 10. Obtener la cantidad de clientes por rangos etarios ([10–19], [20–29], etc.), que hayan realizado al menos una
     -- compra de acciones de “amzn”. La edad debe calcularse como la diferencia entre la fecha de corte 2025-05-16 y
