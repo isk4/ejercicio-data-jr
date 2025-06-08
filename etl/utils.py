@@ -41,7 +41,7 @@ def transform_customers(df_customers):
     df_customers["customer_key"] = df_customers.index + 1
     # Formateo de fecha
     df_customers["birthdate"] = df_customers["birthdate"].apply(lambda x: format_date(x["$date"]))
-
+    # Renombrado de columnas
     df_customers = df_customers.rename(columns={"name": "customer_name"})
 
     # Cuentas por customer y dataframe final
@@ -49,3 +49,17 @@ def transform_customers(df_customers):
     df_customers = df_customers[["customer_key", "customer_name", "username", "birthdate"]]
 
     return df_customers, df_accounts_per_customer
+
+def transform_accounts(df_accounts):
+    # Creación surrogate key
+    df_accounts["account_key"] = df_accounts.index + 1
+    # Renombrado de columnas
+    df_accounts = df_accounts.rename(columns={
+        "account_id": "account_id_src",
+        "limit": "account_limit"
+    })
+
+    df_products_per_account = df_accounts[["account_key", "products"]]
+    df_accounts = df_accounts[["account_key", "account_id_src", "account_limit"]]
+
+    return df_accounts, df_products_per_account

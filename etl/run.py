@@ -6,7 +6,8 @@ from etl.utils import (
     get_dataframes, 
     validate_db, 
     format_date, 
-    transform_customers
+    transform_customers,
+    transform_accounts
 )
 
 # # Apertura de conexión a db
@@ -20,6 +21,8 @@ from etl.utils import (
 df_transactions, df_accounts, df_customers = get_dataframes()
 
 df_customers, df_accounts_per_customer = transform_customers(df_customers)
+df_accounts, df_products_per_account = transform_accounts(df_accounts)
+
 
 # Persistencia de inserts
 # conn.commit()
