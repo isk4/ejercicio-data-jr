@@ -110,3 +110,28 @@ WHERE Dim_Tier.tier_name = 'Gold';
 -- 10. Obtener la cantidad de clientes por rangos etarios ([10–19], [20–29], etc.), que hayan realizado al menos una
     -- compra de acciones de “amzn”. La edad debe calcularse como la diferencia entre la fecha de corte 2025-05-16 y
     -- el campo “birthdate
+WITH amzn_buyers_ages AS (
+    SELECT DISTINCT
+        Dim_Customer.customer_key,
+        CAST((julianday('2025-05-16') - julianday(Dim_Customer.birthdate)) / 365.25 AS INTEGER) customer_age
+    FROM Dim_Customer
+    JOIN Fact_Transaction ON Fact_Transaction.customer_key = Dim_Customer.customer_key
+        AND Fact_Transaction.symbol = 'amzn'
+        AND Fact_Transaction.transaction_code = 'buy'
+) SELECT
+    CASE
+        WHEN customer_age < 10 THEN '[<10]'
+        WHEN customer_age BETWEEN 10 AND 19 THEN '[10-19]' 
+        WHEN customer_age BETWEEN 20 AND 29 THEN '[20-29]' 
+        WHEN customer_age BETWEEN 30 AND 39 THEN '[30-39]' 
+        WHEN customer_age BETWEEN 40 AND 49 THEN '[40-49]' 
+        WHEN customer_age BETWEEN 50 AND 59 THEN '[50-59]' 
+        WHEN customer_age BETWEEN 60 AND 69 THEN '[60-69]' 
+        WHEN customer_age BETWEEN 70 AND 79 THEN '[70-79]' 
+        WHEN customer_age BETWEEN 80 AND 89 THEN '[80-89]'
+        WHEN customer_age >= 90 THEN '[90+]'
+    END AS age_group,
+    COUNT(*) customer_count
+FROM amzn_buyers_ages
+GROUP BY age_group
+ORDER BY age_group;
