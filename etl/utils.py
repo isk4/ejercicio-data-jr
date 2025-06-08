@@ -59,13 +59,22 @@ def transform_customers(df_customers):
     col_tier_and_details = df_tiers_per_customer["tier_and_details"]
     df_tiers = col_tier_and_details.map(lambda x: x["tier"]).to_frame()
     df_tiers = df_tiers.drop_duplicates().reset_index(drop=True)
+    df_tiers = df_tiers.rename(columns={"tier_and_details": "tier_name"})
     df_tiers["tier_key"] = df_tiers.index + 1
     
     # Creacion benefits
     df_benefits = col_tier_and_details.map(lambda x: x["benefits"]).explode().to_frame()
     df_benefits = df_benefits.drop_duplicates().reset_index(drop=True)
+    df_benefits = df_benefits.rename(columns={"tier_and_details": "benefit_name"})
     df_benefits["benefit_key"] = df_benefits.index + 1
 
+    df_tiers_per_customer["tier_name"] = df_tiers_per_customer["tier_and_details"].map(lambda x: x["tier"])
+    df_tiers_per_customer["benefit_name"] = df_tiers_per_customer["tier_and_details"].map(lambda x: x["benefits"])
+    df_tiers_per_customer = df_tiers_per_customer.merge(df_tiers, on="tier_name", how="left")
+    df_tiers_per_customer = df_tiers_per_customer[["customer_key", "tier_key", "benefit_name"]].explode("benefit_name")
+    df_tiers_per_customer = df_tiers_per_customer.merge(df_benefits, on="benefit_name", how="left")
+
+    df_tiers_per_customer = df_tiers_per_customer[["customer_key", "tier_key", "benefit_key"]]
     return df_customers, df_tiers_per_customer
 
 # Transformación dataframe cuentas
