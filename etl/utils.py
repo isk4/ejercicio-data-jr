@@ -100,3 +100,13 @@ def transform_accounts(df_accounts):
     df_products_per_account = df_products_per_account[["account_key", "product_key"]]
 
     return df_accounts, df_products, df_products_per_account
+
+def generate_dates():
+    dates = pd.date_range(start="1950-01-01", end="2025-12-31", freq="D")
+
+    df_dates = pd.DataFrame({"date": dates})
+    df_dates["date_key"]   = df_dates["date"].dt.strftime("%Y%m%d").astype(int)
+    df_dates["date_month"] = df_dates["date"].dt.month
+    df_dates["date_year"]  = df_dates["date"].dt.year
+    
+    return df_dates[["date_key", "date_year", "date_month"]]

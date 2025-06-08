@@ -7,7 +7,8 @@ from etl.utils import (
     validate_db, 
     format_date, 
     transform_customers,
-    transform_accounts
+    transform_accounts,
+    generate_dates
 )
 
 # # Apertura de conexión a db
@@ -22,8 +23,7 @@ df_transactions, df_accounts, df_customers = get_dataframes()
 
 df_customers, df_tiers_per_customer = transform_customers(df_customers)
 df_accounts, df_products, df_products_per_account = transform_accounts(df_accounts)
-
-print(df_tiers_per_customer)
+df_dates = generate_dates()
 
 # Persistencia de inserts
 # conn.commit()
