@@ -41,8 +41,19 @@ def transform_customers(df_customers):
     df_customers["customer_key"] = df_customers.index + 1
     # Formateo de fecha
     df_customers["birthdate"] = df_customers["birthdate"].map(lambda x: format_date(x["$date"]))
+    # Guardando cuentas por customer
+    df_accounts_per_customer = df_customers.explode("accounts")
+    df_accounts_per_customer = df_accounts_per_customer.rename(columns={"accounts": "account_id"})
+
+    multi_owned_accounts = df_accounts_per_customer["account_id"].duplicated(keep=False)
+    print("\nSe encontraron múltiples propietarios para las mismas cuentas y estas no serán consideradas:\n")
+    print(df_accounts_per_customer[multi_owned_accounts][["name", "username", "account_id", ]].to_string())
+    # Eliminación de filas con errores
+    df_accounts_per_customer = df_accounts_per_customer[~multi_owned_accounts]
+
     # Renombrado de columnas
     df_customers = df_customers.rename(columns={"name": "customer_name"})
+    df_accounts_per_customer = df_accounts_per_customer.rename(columns={"account_id": "account_id_src"})
 
     # Extracción tiers
     df_tiers_per_customer = df_customers[["customer_key", "tier_and_details"]]
@@ -75,7 +86,7 @@ def transform_customers(df_customers):
     df_tiers_per_customer = df_tiers_per_customer.merge(df_benefits, on="benefit_name", how="left")
 
     df_tiers_per_customer = df_tiers_per_customer[["customer_key", "tier_key", "benefit_key"]]
-    return df_customers, df_tiers_per_customer
+    return df_customers, df_accounts_per_customer, df_tiers_per_customer
 
 # Transformación dataframe cuentas
 def transform_accounts(df_accounts):
@@ -110,3 +121,26 @@ def generate_dates():
     df_dates["date_year"]  = df_dates["date"].dt.year
     
     return df_dates[["date_key", "date_year", "date_month"]]
+
+def transform_transactions(df_transactions, df_accounts, df_accounts_per_customer):
+    df_transactions = df_transactions[["account_id", "transactions"]].explode("transactions")
+
+    # Asignación de fechas
+    dates = df_transactions["transactions"].str.get("date").str.get("$date")
+    string_dates = pd.to_datetime(dates, utc=True, errors="coerce")
+    number_dates = pd.to_numeric(dates.str.get("$numberLong"), errors="coerce")
+    number_dates = pd.to_datetime(number_dates, unit="ms", utc=True, errors="coerce")
+    df_transactions["date_key"] = string_dates.fillna(number_dates).dt.strftime("%Y%m%d").astype(int)
+
+    df_transactions["transaction_code"] = df_transactions["transactions"].str.get("transaction_code")
+    df_transactions["symbol"] = df_transactions["transactions"].str.get("symbol")
+    df_transactions["amount"] = df_transactions["transactions"].str.get("amount")
+
+    df_transactions = df_transactions.rename(columns={"account_id": "account_id_src"})
+    
+    # Ignorar transacciones sin cuenta disponible
+    df_transactions = df_transactions.merge(df_accounts, on="account_id_src", how="inner")
+    df_transactions = df_transactions.merge(df_accounts_per_customer, on="account_id_src", how="left")
+
+    df_transactions["transaction_key"] = df_transactions.index + 1
+    return df_transactions[["transaction_key", "account_key", "customer_key", "date_key", "transaction_code", "symbol", "amount"]]
