@@ -20,10 +20,10 @@ from etl.utils import (
 # Carga de data desde el origen
 df_transactions, df_accounts, df_customers = get_dataframes()
 
-df_customers, df_accounts_per_customer = transform_customers(df_customers)
-df_accounts, df_products_per_account = transform_accounts(df_accounts)
+df_customers, df_tiers_per_customer = transform_customers(df_customers)
+df_accounts, df_products, df_products_per_account = transform_accounts(df_accounts)
 
-print(df_products_per_account)
+# print(df_tiers_per_customer.to_string())
 
 # Persistencia de inserts
 # conn.commit()

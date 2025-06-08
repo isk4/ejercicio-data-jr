@@ -40,16 +40,35 @@ def transform_customers(df_customers):
     # Creación surrogate key
     df_customers["customer_key"] = df_customers.index + 1
     # Formateo de fecha
-    df_customers["birthdate"] = df_customers["birthdate"].apply(lambda x: format_date(x["$date"]))
+    df_customers["birthdate"] = df_customers["birthdate"].map(lambda x: format_date(x["$date"]))
     # Renombrado de columnas
     df_customers = df_customers.rename(columns={"name": "customer_name"})
 
-    # Cuentas por customer y dataframe final customers
-    df_accounts_per_customer = df_customers[["customer_key", "accounts"]]
+    # Extracción tiers
+    df_tiers_per_customer = df_customers[["customer_key", "tier_and_details"]]
+    # Filtrado customers sin tier
+    tiers_per_customer_mask = df_tiers_per_customer["tier_and_details"].map(bool)
+    df_tiers_per_customer = df_tiers_per_customer[tiers_per_customer_mask]
+    # Obtención detalles tiers
+    df_tiers_per_customer["tier_and_details"] = df_tiers_per_customer["tier_and_details"].map(lambda x: x.values())
+    df_tiers_per_customer = df_tiers_per_customer.explode("tier_and_details")
+    # Dataframe final customers
     df_customers = df_customers[["customer_key", "customer_name", "username", "birthdate"]]
 
-    return df_customers, df_accounts_per_customer
+    # Creación tiers
+    col_tier_and_details = df_tiers_per_customer["tier_and_details"]
+    df_tiers = col_tier_and_details.map(lambda x: x["tier"]).to_frame()
+    df_tiers = df_tiers.drop_duplicates().reset_index(drop=True)
+    df_tiers["tier_key"] = df_tiers.index + 1
+    
+    # Creacion benefits
+    df_benefits = col_tier_and_details.map(lambda x: x["benefits"]).explode().to_frame()
+    df_benefits = df_benefits.drop_duplicates().reset_index(drop=True)
+    df_benefits["benefit_key"] = df_benefits.index + 1
 
+    return df_customers, df_tiers_per_customer
+
+# Transformación dataframe cuentas
 def transform_accounts(df_accounts):
     # Creación surrogate key
     df_accounts["account_key"] = df_accounts.index + 1
@@ -71,4 +90,4 @@ def transform_accounts(df_accounts):
     df_products_per_account = df_products_per_account.merge(df_products, on="products", how="left")
     df_products_per_account = df_products_per_account[["account_key", "product_key"]]
 
-    return df_accounts, df_products_per_account
+    return df_accounts, df_products, df_products_per_account
