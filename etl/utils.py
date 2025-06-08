@@ -44,7 +44,7 @@ def transform_customers(df_customers):
     # Renombrado de columnas
     df_customers = df_customers.rename(columns={"name": "customer_name"})
 
-    # Cuentas por customer y dataframe final
+    # Cuentas por customer y dataframe final customers
     df_accounts_per_customer = df_customers[["customer_key", "accounts"]]
     df_customers = df_customers[["customer_key", "customer_name", "username", "birthdate"]]
 
@@ -59,7 +59,16 @@ def transform_accounts(df_accounts):
         "limit": "account_limit"
     })
 
-    df_products_per_account = df_accounts[["account_key", "products"]]
+    # Productos por cuenta y dataframe final cuentas
+    df_products_per_account = df_accounts[["account_key", "products"]].explode("products")
     df_accounts = df_accounts[["account_key", "account_id_src", "account_limit"]]
+
+    # Creación productos
+    df_products = df_products_per_account["products"].drop_duplicates().reset_index(drop=True).to_frame()
+    df_products["product_key"] = df_products.index + 1
+
+    # Formateo dataframe para bridge account/product
+    df_products_per_account = df_products_per_account.merge(df_products, on="products", how="left")
+    df_products_per_account = df_products_per_account[["account_key", "product_key"]]
 
     return df_accounts, df_products_per_account

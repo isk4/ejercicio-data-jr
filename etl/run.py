@@ -23,6 +23,7 @@ df_transactions, df_accounts, df_customers = get_dataframes()
 df_customers, df_accounts_per_customer = transform_customers(df_customers)
 df_accounts, df_products_per_account = transform_accounts(df_accounts)
 
+print(df_products_per_account)
 
 # Persistencia de inserts
 # conn.commit()
