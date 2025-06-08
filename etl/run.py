@@ -5,26 +5,23 @@ from etl.utils import (
     create_tables, 
     get_dataframes, 
     validate_db, 
-    format_date, 
     transform_customers,
     transform_accounts,
     transform_transactions,
     generate_dates,
     insert_data
 )
-print("\n- Inicio script ETL -")
-print("----------------------------------------------------------------------------------------------\n")
-
+print("\n- Inicio script ETL")
+print(f"\n{'-' * 100}\n")
 
 print("Conectando con la base de datos...")
-print("\n----------------------------------------------------------------------------------------------\n")
+print(f"\n{'-' * 100}\n")
 # Apertura de conexión a db
 conn = sqlite3.connect(BASE_DIR / "dw.db")
 cursor = conn.cursor()
 
-
 print("Creando tablas...")
-print("\n----------------------------------------------------------------------------------------------\n")
+print(f"\n{'-' * 100}\n")
 # # Implementación schema.sql
 create_tables(cursor)
 
@@ -38,8 +35,7 @@ print(df_accounts[dup_account_ids].to_markdown(index=False))
 # Eliminacion de filas con errores
 df_accounts = df_accounts[~dup_account_ids]
 
-print("\n----------------------------------------------------------------------------------------------\n")
-
+print(f"\n{'-' * 100}\n")
 # Generación de fechas
 df_dates = generate_dates()
 
@@ -48,8 +44,7 @@ df_customers, df_tiers, df_benefits, df_accounts_per_customer, df_tiers_per_cust
 df_accounts, df_products, df_products_per_account = transform_accounts(df_accounts)
 df_transactions = transform_transactions(df_transactions, df_accounts, df_accounts_per_customer)
 
-print("\n----------------------------------------------------------------------------------------------\n")
-
+print(f"\n{'-' * 100}\n")
 # Carga de data desde en destino
 print("Iniciando insercion de datos...\n")
 tables = {
@@ -75,6 +70,7 @@ validate_db(cursor)
 
 # # Cierre de conexión a db
 conn.close()
-print("\n----------------------------------------------------------------------------------------------\n")
-print("- Fin script ETL -")
-print("\n----------------------------------------------------------------------------------------------\n")
+
+print(f"\n{'-' * 100}\n")
+print("- Fin script ETL")
+print(f"\n{'-' * 100}\n")
