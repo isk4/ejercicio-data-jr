@@ -1,5 +1,4 @@
 import sqlite3
-import json
 from etl import BASE_DIR
 from etl.utils import (
     create_tables, 
@@ -11,18 +10,20 @@ from etl.utils import (
     generate_dates,
     insert_data
 )
+
 print("\n- Inicio script ETL")
 print(f"\n{'-' * 100}\n")
 
+# Apertura de conexión a db
 print("Conectando con la base de datos...")
 print(f"\n{'-' * 100}\n")
-# Apertura de conexión a db
+
 conn = sqlite3.connect(BASE_DIR / "dw.db")
 cursor = conn.cursor()
 
+# # Implementación schema.sql
 print("Creando tablas...")
 print(f"\n{'-' * 100}\n")
-# # Implementación schema.sql
 create_tables(cursor)
 
 # Extracción de data desde el origen
@@ -32,7 +33,8 @@ df_transactions, df_accounts, df_customers = get_dataframes()
 dup_account_ids = df_accounts["account_id"].duplicated(keep=False)
 print("Se encontraron ids de cuenta duplicados. Las siguientes cuentas no serán consideradas:\n")
 print(df_accounts[dup_account_ids].to_markdown(index=False))
-# Eliminacion de filas con errores
+
+# Eliminacion de filas de cuentas con errores
 df_accounts = df_accounts[~dup_account_ids]
 
 print(f"\n{'-' * 100}\n")
@@ -44,8 +46,8 @@ df_customers, df_tiers, df_benefits, df_accounts_per_customer, df_tiers_per_cust
 df_accounts, df_products, df_products_per_account = transform_accounts(df_accounts)
 df_transactions = transform_transactions(df_transactions, df_accounts, df_accounts_per_customer)
 
-print(f"\n{'-' * 100}\n")
 # Carga de data desde en destino
+print(f"\n{'-' * 100}\n")
 print("Iniciando insercion de datos...\n")
 tables = {
     "Dim_Date": df_dates,
@@ -58,7 +60,6 @@ tables = {
     "Bridge_Customer_Tier_Benefit": df_tiers_per_customer,
     "Fact_Transaction": df_transactions
 }
-
 for table_name, dataframe in tables.items():
     insert_data(table_name, dataframe, cursor, conn)
 

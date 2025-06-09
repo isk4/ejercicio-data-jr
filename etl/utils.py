@@ -1,7 +1,6 @@
 import pandas as pd
 from pathlib import Path
 from etl import BASE_DIR
-from datetime import datetime, timezone
 
 # Implementación schema.sql
 def create_tables(cursor):
@@ -79,6 +78,7 @@ def transform_customers(df_customers):
     df_benefits = df_benefits.rename(columns={"tier_and_details": "benefit_name"})
     df_benefits["benefit_key"] = df_benefits.index + 1
 
+    # Obtención de tiers por cliente
     df_tiers_per_customer["tier_name"] = df_tiers_per_customer["tier_and_details"].map(lambda x: x["tier"])
     df_tiers_per_customer["benefit_name"] = df_tiers_per_customer["tier_and_details"].map(lambda x: x["benefits"])
     df_tiers_per_customer = df_tiers_per_customer.merge(df_tiers, on="tier_name", how="left")
@@ -133,6 +133,7 @@ def transform_transactions(df_transactions, df_accounts, df_accounts_per_custome
     number_dates = pd.to_datetime(number_dates, unit="ms", utc=True, errors="coerce")
     df_transactions["date_key"] = string_dates.fillna(number_dates).dt.strftime("%Y%m%d").astype(int)
 
+    # Extracción de atributos desde objeto
     df_transactions["transaction_code"] = df_transactions["transactions"].str.get("transaction_code")
     df_transactions["symbol"] = df_transactions["transactions"].str.get("symbol")
     df_transactions["amount"] = df_transactions["transactions"].str.get("amount")
@@ -147,6 +148,7 @@ def transform_transactions(df_transactions, df_accounts, df_accounts_per_custome
     return df_transactions[["transaction_key", "account_key", "customer_key", "date_key", "transaction_code", "symbol", "amount"]]
 
 def insert_data(table_name, dataframe, cursor, connection):
+    # Inserción de datos de dataframe y log básico
     dataframe.to_sql(
         name=table_name,
         con=connection,
