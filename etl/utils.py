@@ -12,6 +12,14 @@ def get_dataframes():
     df_transactions = pd.read_json(Path(BASE_DIR / "sample_analytics_dataset" / "sample_analytics.transactions.json"))
     df_accounts     = pd.read_json(Path(BASE_DIR / "sample_analytics_dataset" / "sample_analytics.accounts.json"))
     df_customers    = pd.read_json(Path(BASE_DIR / "sample_analytics_dataset" / "sample_analytics.customers.json"))
+
+    # Detección account_id duplicados
+    dup_account_ids = df_accounts["account_id"].duplicated(keep=False)
+    print("Se encontraron ids de cuenta duplicados. Las siguientes cuentas no serán consideradas:\n")
+    print(df_accounts[dup_account_ids].to_markdown(index=False))
+
+    # Eliminacion de filas de cuentas con errores
+    df_accounts = df_accounts[~dup_account_ids]
     
     return df_transactions, df_accounts, df_customers
 
@@ -44,6 +52,7 @@ def transform_customers(df_customers):
     df_accounts_per_customer = df_customers.explode("accounts")
     df_accounts_per_customer = df_accounts_per_customer.rename(columns={"accounts": "account_id"})
 
+    # Detección de cuentas con más de un dueño
     multi_owned_accounts = df_accounts_per_customer["account_id"].duplicated(keep=False)
     print("Se encontraron múltiples propietarios para las siguientes cuentas, las que no serán consideradas:\n")
     print(df_accounts_per_customer[multi_owned_accounts][["name", "username", "account_id", ]].to_markdown(index=False))

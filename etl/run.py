@@ -29,14 +29,6 @@ create_tables(cursor)
 # Extracción de data desde el origen
 df_transactions, df_accounts, df_customers = get_dataframes()
 
-# Detección account_id duplicados
-dup_account_ids = df_accounts["account_id"].duplicated(keep=False)
-print("Se encontraron ids de cuenta duplicados. Las siguientes cuentas no serán consideradas:\n")
-print(df_accounts[dup_account_ids].to_markdown(index=False))
-
-# Eliminacion de filas de cuentas con errores
-df_accounts = df_accounts[~dup_account_ids]
-
 print(f"\n{'-' * 100}\n")
 # Generación de fechas
 df_dates = generate_dates()
