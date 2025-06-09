@@ -17,9 +17,6 @@ source .venv/bin/activate
 python -m venv .venv
 .venv\Scripts\activate
 ```
-
-
-
 ---
 
 #### 2. Instalación de dependencias
@@ -27,15 +24,25 @@ python -m venv .venv
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
+---
 
 #### 3. Ejecución proceso ETL
 ```bash
 python3 -m etl.run
-# O dependiendo del entorno especifico
+# O dependiendo del entorno:
 # python -m etl.run
 ```
+---
 
-<em>Desactivar entorno virtual</em>
+#### 4. Ejecución de consultas SQL
+```bash
+python3 -m queries.run
+# O dependiendo del entorno:
+# python -m queries.run
+```
+---
+
+#### 5. Desactivar entorno virtual
 ```bash
 deactivate
 ```
