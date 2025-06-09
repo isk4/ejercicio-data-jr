@@ -1,6 +1,3 @@
-.headers on
-.mode column
-
 -- 1. ¿Cuál es el promedio, mínimo, máximo y desviación estándar del límite de las cuentas de usuarios?
 SELECT
     AVG(account_limit),
@@ -43,7 +40,6 @@ ORDER BY delta DESC
 LIMIT 1;
 
 -- 5. ¿Cuántas cuentas tienen exactamente 3 productos y, además, uno de esos productos es "Commodity"?
-
 WITH products_per_account AS (
     SELECT 
         Dim_Account.account_key,
@@ -59,7 +55,7 @@ WHERE product_count = 3
 AND commodity = 1;
 
 -- 6. ¿Cuál es el nombre del cliente que, en total entre todas sus cuentas, ha realizado la mayor 
-    -- cantidad de transacciones de tipo sell?
+--    cantidad de transacciones de tipo sell?
 SELECT 
     Dim_Customer.customer_name,
     COUNT(*) AS sell_count
@@ -71,7 +67,7 @@ ORDER BY sell_count DESC
 LIMIT 1;
 
 -- 7. ¿Cuál es el usuario del cliente cuya cuenta tiene entre 10 y 20 transacciones de tipo “buy”,
-    -- y que presenta el promedio de inversión más alto por operación de este tipo?
+--    y que presenta el promedio de inversión más alto por operación de este tipo?
 WITH between_10_and_20_buys AS (
     SELECT 
         Dim_Customer.username,
@@ -82,7 +78,7 @@ WITH between_10_and_20_buys AS (
         AND Fact_Transaction.transaction_code = 'buy'
     GROUP BY Dim_Customer.username || Dim_Customer.customer_name
 ) SELECT 
-    sername,
+    username,
     avg_amount
 FROM between_10_and_20_buys
 WHERE buy_count >= 10 AND buy_count <= 20
@@ -108,8 +104,8 @@ JOIN Dim_Benefit ON Dim_Benefit.benefit_key = Bridge_Customer_Tier_Benefit.benef
 WHERE Dim_Tier.tier_name = 'Gold';
 
 -- 10. Obtener la cantidad de clientes por rangos etarios ([10–19], [20–29], etc.), que hayan realizado al menos una
-    -- compra de acciones de “amzn”. La edad debe calcularse como la diferencia entre la fecha de corte 2025-05-16 y
-    -- el campo “birthdate
+--     compra de acciones de “amzn”. La edad debe calcularse como la diferencia entre la fecha de corte 2025-05-16 y
+--     el campo “birthdate
 WITH amzn_buyers_ages AS (
     SELECT DISTINCT
         Dim_Customer.customer_key,
