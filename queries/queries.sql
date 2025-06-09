@@ -1,8 +1,8 @@
 -- 1. ¿Cuál es el promedio, mínimo, máximo y desviación estándar del límite de las cuentas de usuarios?
 SELECT
-    ROUND(AVG(account_limit), 2),
-    MIN(account_limit),
-    MAX(account_limit),
+    ROUND(AVG(account_limit), 2) AS average,
+    MIN(account_limit) AS min,
+    MAX(account_limit) AS max,
     ROUND(SQRT(
         SUM(CAST(account_limit AS REAL) * account_limit) / COUNT(*) - AVG(account_limit) * AVG(account_limit) -- desviación estándar poblacional
         -- SUM(CAST(account_limit AS REAL) * account_limit) / (COUNT(*) - 1) - AVG(account_limit) * AVG(account_limit) -- desviación estándar muestral
@@ -22,8 +22,8 @@ WHERE account_count > 1;
 
 -- 3. ¿Cuál es el monto promedio y el número de transacciones del mes de junio?
 SELECT 
-    ROUND(AVG(amount), 2),
-    COUNT(*)
+    ROUND(AVG(amount), 2) AS average,
+    COUNT(*) AS transaction_count
 FROM Fact_Transaction
 JOIN Dim_Date
 ON Dim_Date.date_key = Fact_Transaction.date_key
@@ -49,7 +49,7 @@ WITH products_per_account AS (
     JOIN Bridge_Account_Product ON Bridge_Account_Product.account_key = Dim_Account.account_key
     JOIN Dim_Product ON Dim_Product.product_key = Bridge_Account_Product.product_key
     GROUP BY Dim_Account.account_key
-) SELECT COUNT(*)
+) SELECT COUNT(*) AS account_count
 FROM products_per_account
 WHERE product_count = 3
 AND commodity = 1;
