@@ -1,12 +1,12 @@
 -- 1. ¿Cuál es el promedio, mínimo, máximo y desviación estándar del límite de las cuentas de usuarios?
 SELECT
-    AVG(account_limit),
+    ROUND(AVG(account_limit), 2),
     MIN(account_limit),
     MAX(account_limit),
-    SQRT(
+    ROUND(SQRT(
         SUM(CAST(account_limit AS REAL) * account_limit) / COUNT(*) - AVG(account_limit) * AVG(account_limit) -- desviación estándar poblacional
         -- SUM(CAST(account_limit AS REAL) * account_limit) / (COUNT(*) - 1) - AVG(account_limit) * AVG(account_limit) -- desviación estándar muestral
-    ) AS "STDDEV(account_limit)"
+    ), 2) AS std_dv_account_limit
 FROM Dim_Account;
 
 -- 2. ¿Cuántos clientes poseen más de una cuenta?
@@ -22,7 +22,7 @@ WHERE account_count > 1;
 
 -- 3. ¿Cuál es el monto promedio y el número de transacciones del mes de junio?
 SELECT 
-    AVG(amount),
+    ROUND(AVG(amount), 2),
     COUNT(*)
 FROM Fact_Transaction
 JOIN Dim_Date
@@ -71,7 +71,7 @@ LIMIT 1;
 WITH between_10_and_20_buys AS (
     SELECT 
         Dim_Customer.username,
-        AVG(Fact_Transaction.amount) avg_amount,
+        ROUND(AVG(Fact_Transaction.amount), 2) avg_amount,
         COUNT(*) AS buy_count
     FROM Dim_Customer
     JOIN Fact_Transaction ON Fact_Transaction.customer_key = Dim_Customer.customer_key
@@ -88,8 +88,8 @@ LIMIT 1;
 -- 8. ¿Cuál es el promedio de transacciones de compra y de venta por acción (campo “symbol”)?
 SELECT
     symbol,
-    AVG(CASE WHEN transaction_code = 'buy'  THEN CAST(amount AS REAL) END) AS avg_buy,
-    AVG(CASE WHEN transaction_code = 'sell' THEN CAST(amount AS REAL) END) AS avg_sell
+    ROUND(AVG(CASE WHEN transaction_code = 'buy'  THEN amount END), 2) AS avg_buy,
+    ROUND(AVG(CASE WHEN transaction_code = 'sell' THEN amount END), 2) AS avg_sell
 FROM Fact_Transaction
 GROUP BY symbol
 ORDER BY symbol
