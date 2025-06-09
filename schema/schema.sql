@@ -23,41 +23,44 @@ CREATE TABLE Dim_Customer(
     customer_key INTEGER PRIMARY KEY,
     customer_name TEXT NOT NULL,
     username TEXT NOT NULL,
-    birthdate DATE NOT NULL
+    birthdate DATE NOT NULL,
+    UNIQUE(username, customer_name)
 );
 
 CREATE TABLE Dim_Account(
     account_key INTEGER PRIMARY KEY,
-    account_id_src INTEGER NOT NULL,
+    account_id_src INTEGER NOT NULL UNIQUE,
     account_limit INTEGER NOT NULL
 );
 
 CREATE TABLE Dim_Product(
     product_key INTEGER PRIMARY KEY,
-    product_name TEXT NOT NULL
+    product_name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE Bridge_Account_Product(
     account_key INTEGER NOT NULL,
     product_key INTEGER NOT NULL,
+    PRIMARY KEY (account_key, product_key),
     FOREIGN KEY (account_key) REFERENCES Dim_Account(account_key),
     FOREIGN KEY (product_key) REFERENCES Dim_Product(product_key)
 );
 
 CREATE TABLE Dim_Tier(
     tier_key INTEGER PRIMARY KEY,
-    tier_name TEXT NOT NULL
+    tier_name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE Dim_Benefit(
     benefit_key INTEGER PRIMARY KEY,
-    benefit_name TEXT NOT NULL
+    benefit_name TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE Bridge_Customer_Tier_Benefit(
     customer_key INTEGER NOT NULL,
     tier_key INTEGER NOT NULL,
     benefit_key INTEGER NOT NULL,
+    PRIMARY KEY (customer_key, tier_key, benefit_key),
     FOREIGN KEY (customer_key) REFERENCES Dim_Customer(customer_key),
     FOREIGN KEY (tier_key) REFERENCES Dim_Tier(tier_key),
     FOREIGN KEY (benefit_key) REFERENCES Dim_Benefit(benefit_key)
@@ -81,12 +84,4 @@ CREATE INDEX idx_ft_customer     ON Fact_Transaction(customer_key);
 CREATE INDEX idx_ft_account      ON Fact_Transaction(account_key);
 CREATE INDEX idx_ft_date         ON Fact_Transaction(date_key);
 CREATE INDEX idx_ft_symbol_tx    ON Fact_Transaction(symbol, transaction_code);
-
-CREATE INDEX idx_bap_account     ON Bridge_Account_Product(account_key);
-CREATE INDEX idx_bap_product     ON Bridge_Account_Product(product_key);
-
-CREATE INDEX idx_bctb_customer   ON Bridge_Customer_Tier_Benefit(customer_key);
-CREATE INDEX idx_bctb_tier       ON Bridge_Customer_Tier_Benefit(tier_key);
-CREATE INDEX idx_bctb_benefit    ON Bridge_Customer_Tier_Benefit(benefit_key);
-
 CREATE INDEX idx_date_month      ON Dim_Date(date_month);
