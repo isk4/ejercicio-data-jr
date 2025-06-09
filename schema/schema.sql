@@ -15,26 +15,26 @@ PRAGMA foreign_keys = ON;
 -- Creación de tablas
 CREATE TABLE Dim_Date(
     date_key INTEGER PRIMARY KEY,
-    date_year INT,
-    date_month INT
+    date_year INT NOT NULL,
+    date_month INT NOT NULL
 );
 
 CREATE TABLE Dim_Customer(
     customer_key INTEGER PRIMARY KEY,
-    customer_name TEXT,
-    username TEXT,
-    birthdate DATE
+    customer_name TEXT NOT NULL,
+    username TEXT NOT NULL,
+    birthdate DATE NOT NULL
 );
 
 CREATE TABLE Dim_Account(
     account_key INTEGER PRIMARY KEY,
-    account_id_src INTEGER,
-    account_limit INTEGER
+    account_id_src INTEGER NOT NULL,
+    account_limit INTEGER NOT NULL
 );
 
 CREATE TABLE Dim_Product(
     product_key INTEGER PRIMARY KEY,
-    product_name TEXT
+    product_name TEXT NOT NULL
 );
 
 CREATE TABLE Bridge_Account_Product(
@@ -46,12 +46,12 @@ CREATE TABLE Bridge_Account_Product(
 
 CREATE TABLE Dim_Tier(
     tier_key INTEGER PRIMARY KEY,
-    tier_name TEXT
+    tier_name TEXT NOT NULL
 );
 
 CREATE TABLE Dim_Benefit(
     benefit_key INTEGER PRIMARY KEY,
-    benefit_name TEXT
+    benefit_name TEXT NOT NULL
 );
 
 CREATE TABLE Bridge_Customer_Tier_Benefit(
@@ -68,9 +68,9 @@ CREATE TABLE Fact_Transaction(
     account_key INTEGER NOT NULL,
     customer_key INTEGER NOT NULL,
     date_key INTEGER NOT NULL,
-    transaction_code TEXT,
-    symbol TEXT,
-    amount INTEGER,
+    transaction_code TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    amount INTEGER NOT NULL,
     FOREIGN KEY (account_key) REFERENCES Dim_Account(account_key),
     FOREIGN KEY (customer_key) REFERENCES Dim_Customer(customer_key),
     FOREIGN KEY (date_key) REFERENCES Dim_Date(date_key)
