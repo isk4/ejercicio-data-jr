@@ -75,3 +75,18 @@ CREATE TABLE Fact_Transaction(
     FOREIGN KEY (customer_key) REFERENCES Dim_Customer(customer_key),
     FOREIGN KEY (date_key) REFERENCES Dim_Date(date_key)
 );
+
+-- Creación índices
+CREATE INDEX idx_ft_customer     ON Fact_Transaction(customer_key);
+CREATE INDEX idx_ft_account      ON Fact_Transaction(account_key);
+CREATE INDEX idx_ft_date         ON Fact_Transaction(date_key);
+CREATE INDEX idx_ft_symbol_tx    ON Fact_Transaction(symbol, transaction_code);
+
+CREATE INDEX idx_bap_account     ON Bridge_Account_Product(account_key);
+CREATE INDEX idx_bap_product     ON Bridge_Account_Product(product_key);
+
+CREATE INDEX idx_bctb_customer   ON Bridge_Customer_Tier_Benefit(customer_key);
+CREATE INDEX idx_bctb_tier       ON Bridge_Customer_Tier_Benefit(tier_key);
+CREATE INDEX idx_bctb_benefit    ON Bridge_Customer_Tier_Benefit(benefit_key);
+
+CREATE INDEX idx_date_month      ON Dim_Date(date_month);
