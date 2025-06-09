@@ -60,7 +60,6 @@ CREATE TABLE Bridge_Customer_Tier_Benefit(
     customer_key INTEGER NOT NULL,
     tier_key INTEGER NOT NULL,
     benefit_key INTEGER NOT NULL,
-    PRIMARY KEY (customer_key, tier_key, benefit_key),
     FOREIGN KEY (customer_key) REFERENCES Dim_Customer(customer_key),
     FOREIGN KEY (tier_key) REFERENCES Dim_Tier(tier_key),
     FOREIGN KEY (benefit_key) REFERENCES Dim_Benefit(benefit_key)
@@ -85,3 +84,6 @@ CREATE INDEX idx_ft_account      ON Fact_Transaction(account_key);
 CREATE INDEX idx_ft_date         ON Fact_Transaction(date_key);
 CREATE INDEX idx_ft_symbol_tx    ON Fact_Transaction(symbol, transaction_code);
 CREATE INDEX idx_date_month      ON Dim_Date(date_month);
+CREATE INDEX idx_bctb_customer   ON Bridge_Customer_Tier_Benefit(customer_key);
+CREATE INDEX idx_bctb_tier       ON Bridge_Customer_Tier_Benefit(tier_key);
+CREATE INDEX idx_bctb_benefit    ON Bridge_Customer_Tier_Benefit(benefit_key);
