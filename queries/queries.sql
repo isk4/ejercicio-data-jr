@@ -101,7 +101,8 @@ SELECT DISTINCT
 FROM Dim_Tier
 JOIN Bridge_Customer_Tier_Benefit ON Bridge_Customer_Tier_Benefit.tier_key = Dim_Tier.tier_key
 JOIN Dim_Benefit ON Dim_Benefit.benefit_key = Bridge_Customer_Tier_Benefit.benefit_key
-WHERE Dim_Tier.tier_name = 'Gold';
+WHERE Dim_Tier.tier_name = 'Gold'
+ORDER BY Dim_Benefit.benefit_name;
 
 -- 10. Obtener la cantidad de clientes por rangos etarios ([10–19], [20–29], etc.), que hayan realizado al menos una
 --     compra de acciones de “amzn”. La edad debe calcularse como la diferencia entre la fecha de corte 2025-05-16 y
